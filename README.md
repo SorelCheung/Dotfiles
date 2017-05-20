@@ -1,2 +1,2 @@
-# XX-vim
-My vim configution
+
+These are some of my dotfiles.
