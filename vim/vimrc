@@ -1,0 +1,702 @@
+"vimrc文件修改之后自动加载, Unix
+autocmd! bufwritepost .vimrc source %
+"退出Vim后vimrc自动生效，Windows
+"autocmd! bufwritepost _vimrc source %
+"设置backspace行为
+set backspace=indent,eol,start 
+"显示行号
+set number
+"显示标尺
+set ruler
+"关闭自动备份
+set nobackup
+"set noswapfile
+"开启语法高亮
+syntax enable 
+syntax on
+"关闭兼容模式
+set nocompatible
+"设置命令行模式下的最大历史记录数
+set history=200
+"设置以unix的格式保存文件
+set fileformat=unix    
+"高亮当前行
+set cursorline
+"高亮当前列
+"set cursorcolumn
+"始终显示状态栏
+set laststatus=2
+"命令行补全参数
+set wildmenu
+"设置tab键空4格
+set tabstop=4
+"将Tab自动转化成空格(需要输入真正的Tab键时，使用<C-V>+Tab)
+set expandtab
+"退格键一次删掉4个空格
+set smarttab
+"实时搜索
+set incsearch
+"高亮搜索结果
+set hlsearch
+"忽略大小写
+set ignorecase
+"有一个或以上大写字母时仍大小写敏感
+set smartcase
+"打开正则表达式
+set magic
+"显示匹配的括号
+set showmatch
+"显示当前所处模式
+set showmode
+"设置右下角显示当前光标位置
+set showcmd
+"设置主题为gruvbox
+colorscheme gruvbox
+set t_Co=256
+set background=dark
+"禁止自动折行
+set nowrap
+"设置当文件被改动时自动载入
+set autoread
+"设置退出插入模式后自动保存
+set autowrite
+"当前目录随着被编辑文件的改变而改变
+set autochdir
+"允许插件  
+filetype plugin on
+"共享剪贴板  
+set clipboard+=unnamed
+"关闭输入错误的提示声音
+set noerrorbells
+set novisualbell
+set t_vb=
+set tm=500
+"禁止光标闪烁
+set gcr=a:block-blinkon0
+"在处理未保存或只读文件的时候，弹出确认
+set confirm
+"上下移动光标时光标上方和下方至少保留两行
+set scrolloff=2
+"开启自动缩进，智能缩进
+set autoindent
+set cindent
+set smartindent
+set shiftwidth=4
+"第80个字符处显示分隔符
+set colorcolumn=80  
+"为特定文件类型载入相关缩进文件
+filetype indent on
+"设置默认文件编码为utf-8
+set fenc=utf-8
+set encoding=utf8
+"设置字体为Droid Sans Mono Dotted For Powerline
+set guifont=Droid\ Sans\ Mono\ Dotted\ For\ Powerline\ 10
+"自动判断编码时，依次尝试以下编码
+set fileencodings=utf8,ucs-bom,gbk,cp936,gb2312,gb18030
+"自动全屏
+if has("gui_running")
+  set lines=999 columns=999
+else
+  if exists("+lines")
+    set lines=36
+  endif
+  if exists("+columns")
+    set columns=84
+  endif
+endif
+"自动检测文件类型
+filetype plugin indent on
+"设置显示消息的列数
+set cmdheight=2
+"隐藏工具栏
+set guioptions-=T
+"Ctrl+T新建标签页
+nnoremap <C-t>     :tabnew<CR>
+inoremap <C-t> <Esc>:tabnew<CR>
+"修改分屏移动快捷键
+map <C-j> <C-W>j
+map <C-k> <C-W>k
+map <C-h> <C-W>h
+map <C-l> <C-W>l
+"修改leader键为空格键
+let mapleader = "\<Space>"
+let g:mapleader = "\<Space>"
+"设置插入模式和可视模式下的退出键
+inoremap jj <Esc>:w<CR>
+vnoremap jj <Esc>
+"全选并复制到系统剪贴板
+nmap <Leader>a <Esc>ggVG"+y<Esc>
+"Y复制到行尾
+"nnoremap Y y$
+"Y复制，P粘帖
+map Y "+y
+map P "+p
+"设置快捷键关闭当前buffer
+nnoremap <Leader>q :bd<CR> 
+"<Leader>w快速保存文件
+nnoremap <leader>w :w!<CR>
+"设置<C-s>保存文件
+inoremap <C-s> <Esc>:w<CR>A
+"一键替换全部Tab为空格
+nmap <Leader>ct <Esc>:retab<CR>
+"设置状态栏显示的内容
+set statusline=%F%m%r%h%w\ [FORMAT=%{&ff}]\ [TYPE=%Y]\ [POS=%l,%v][%p%%]\ %{strftime(\"%d/%m/%y\ -\ %H:%M\")}\ %{ALEGetStatusLine()}
+"C，C++,python,java,shell按F9编译运行
+map <F9> :call CompileRun()<CR>
+func! CompileRun()
+    exec "w"
+    if &filetype == 'c'
+        exec "!gcc % -o %<"
+        exec "!time ./%<"
+    elseif &filetype == 'cpp'
+        exec "!g++ % -o %<"
+        exec "!time ./%<"
+	elseif &filetype == 'go'
+		exec "!time go run %"
+    elseif &filetype == 'java' 
+        exec "!javac %" 
+        exec "!time java %<"
+    elseif &filetype == 'python'
+        exec "!time python3 %"
+    elseif &filetype == 'sh'
+        :!./%
+    endif
+endfunc
+"自动插入文件头
+autocmd BufNewFile *.cpp,*.cc,*.c,*h,*.sh,*.py exec ":call SetHeader()" 
+func! SetHeader() 
+    if expand("%:e") == 'sh'
+        call setline(1,"\#!/bin/bash") 
+        call append(line("."), "") 
+    elseif expand("%:e") == 'py'
+        call setline(1,"#!/usr/bin/env python")
+        call append(line("."),"# coding=utf-8")
+        call append(line(".")+1, "") 
+    elseif expand("%:e") == 'cpp' 
+        call setline(1,"#include <iostream>") 
+        call setline(2, "")
+        call setline(3, "using std::cin;") 
+        call setline(4, "using std::cout;") 
+        call setline(5, "using std::endl;") 
+        call setline(6, "")
+    elseif expand("%:e") == 'cc' 
+        call setline(1,"#include <iostream>") 
+        call setline(2, "")
+        call setline(3, "using std::cin;") 
+        call setline(4, "using std::cout;") 
+        call setline(5, "using std::endl;") 
+        call setline(6, "")
+    elseif expand("%:e") == 'c'
+        call setline(1,"#include <stdio.h>") 
+        call append(line("."), "") 
+    elseif expand("%:e") == 'h'
+        call setline(1, "#ifndef ".toupper(expand("%:r"))."_H")
+        call setline(2, "#define ".toupper(expand("%:r"))."_H")
+        call setline(3,"")
+        call setline(4, "#endif")
+    endif
+endfunc 
+autocmd BufNewFile * normal G
+"使用astyle和autopep8格式化代码
+map <F2> :call FormatCode()<CR>
+func! FormatCode()
+    exec "w"
+    if &filetype == 'c' || &filetype == 'h'
+        exec "!astyle --style=allman --suffix=none %"
+    elseif &filetype == 'cpp' || &filetype == 'cc' || &filetype == 'hpp'
+        exec "!astyle --style=allman --suffix=none %"
+    elseif &filetype == 'perl'
+        exec "!astyle --style=gnu --suffix=none %"
+    elseif &filetype == 'py'|| &filetype == 'python'
+        exec "!autopep8 --in-place --aggressive %"
+    elseif &filetype == 'java'
+        exec "!astyle --style=java --suffix=none %"
+    elseif &filetype == 'jsp'
+        exec "!astyle --style=gnu --suffix=none %"
+    elseif &filetype == 'xml'
+        exec "!astyle --style=gnu --suffix=none %"
+    else
+        exec "normal gg=G"
+        return
+    endif
+endfunc
+"打开一个文件自动定位到上一次退出时的位置
+if has("autocmd")
+    au BufReadPost * if line("'\"") > 1 && line("'\"") <= line("$") | exe "normal! g'\"" | endif
+endif
+
+
+
+"airline
+"安装字体后必须设置
+let g:airline_powerline_fonts = 1  
+"开启tabline
+let g:airline#extensions#tabline#enabled = 1
+let g:airline#extensions#tabline#buffer_nr_show = 1
+if !exists('g:airline_symbols')
+  let g:airline_symbols = {}
+endif
+"powerline symbols
+let g:airline_left_sep = ''
+let g:airline_left_alt_sep = ''
+let g:airline_right_sep = ''
+let g:airline_right_alt_sep = ''
+let g:airline_symbols.branch = ''
+let g:airline_symbols.readonly = ''
+let g:airline_symbols.linenr = ''
+
+"auto-format
+"F5自动格式化代码并保存
+noremap <F5> :Autoformat<CR>:w<CR>
+let g:autoformat_verbosemode=1
+"自动格式化python代码
+au BufWrite *.py :Autoformat
+au BufWrite *.cpp :Autoformat
+"以allman(ansi)的风格格式化C/C++代码
+let g:formatdef_allman = '"astyle --style=allman --pad-oper"'
+let g:formatters_cpp = ['allman']
+let g:formatters_c = ['allman']
+
+"The NERD tree
+"F3触发，设置宽度为30,显示书签
+map <F3> :NERDTreeToggle<CR>
+let NERDTreeWinSize = 30
+let NERDTreeShowBookmarks = 1
+"高亮当前行
+let NERDTreeHighlightCursorline = 1
+"从NERDTree打开文件后不自动关闭NERDTree
+let NERDTreeQuitOnOpen = 0
+"显示隐藏文件
+let g:NERDTreeShowHidden = 1
+"显示行号
+"let NERDTreeShowLineNumbers = 1
+"let NERDTreeAutoCenter = 1
+"自动打开NERDTree
+"autocmd vimenter * NERDTree
+
+"commentary
+"为python和shell等添加注释
+autocmd FileType python,shell,coffee set commentstring=#\ %s
+"修改注释风格
+autocmd FileType java,c,cpp set commentstring=//\ %s
+
+"tagbar
+"F10触发，设置宽度为30
+let g:tagbar_width = 30
+nmap <F10> :TagbarToggle<CR>
+"开启自动预览(随着光标在标签上的移动，顶部会出现一个实时的预览窗口)
+let g:tagbar_autopreview = 1  
+"关闭排序,即按标签本身在文件中的位置排序
+let g:tagbar_sort = 0     
+"在tagbar中添加markdown支持
+let g:tagbar_type_markdown = {
+    \ 'ctagstype': 'markdown',
+    \ 'ctagsbin' : '~/.vim/markdown2ctags.py',
+    \ 'ctagsargs' : '-f - --sort=yes',
+    \ 'kinds' : [
+        \ 's:sections',
+        \ 'i:images'
+    \ ],
+    \ 'sro' : '|',
+    \ 'kind2scope' : {
+        \ 's' : 'section',
+    \ },
+    \ 'sort': 0,
+\ }                                   
+
+"TaskList
+"标签分类
+let g:tlTokenList = ["FIXME", "TODO", "HACK", "NOTE", "WARN", "MODIFY"]
+"默认在窗口上方打开任务列表，这里修改为下方
+let g:tlWindowPosition = 1
+
+"instant-markdown
+"#aptitude install nodejs npm xdg-utils,# npm -g install instant-markdown-d
+
+"indentLine
+let g:indentLine_char = '┆'
+let g:indentLine_enabled = 1
+
+"undotree
+nnoremap <F6> :UndotreeToggle<CR>
+set undodir=$HOME/.vim/undo/ 
+set undofile
+
+"open-browser
+"oo打开网址，同时开启网址智能识别
+nmap oo <Plug>(openbrowser-open)
+nmap oo <Plug>(openbrowser-smart-search)
+
+"limelight
+nmap <Leader>l :Goyo<CR>
+xmap <Leader>l :Goyo<CR>
+autocmd! User GoyoEnter Limelight
+autocmd! User GoyoLeave Limelight!
+
+"cpp-enhanced-highlight
+"高亮类，成员函数，标准库和模板
+let g:cpp_class_scope_highlight = 1
+let g:cpp_member_variable_highlight = 1
+let g:cpp_concepts_highlight = 1
+let g:cpp_experimental_simple_template_highlight = 1
+"文件较大时使用下面的设置高亮模板速度较快，但会有一些小错误
+"let g:cpp_experimental_template_highlight = 1
+
+"vim-tex
+"防止vim将tex识别为plaintex
+let g:tex_flavor = 'latex'
+"开启括号补全
+let g:vimtex_complete_close_braces = 1
+"开启折叠
+"let g:vimtex_fold_enabled = 1
+"针对大文件，关闭目录自动更新
+"let g:vimtex_toc_refresh_always = 0
+"插入模式下，默认的<Leader>键
+"let g:vimtex_imaps_leader = '`'
+
+"ale
+"始终开启标志列
+let g:ale_sign_column_always = 0
+let g:ale_set_highlights = 0
+"自定义error和warning图标
+let g:ale_sign_error = '✗'
+let g:ale_sign_warning = '⚡'
+"显示Linter名称,出错或警告等相关信息
+let g:ale_statusline_format = ['✗ %d', '⚡ %d', '✔ OK']
+let g:ale_echo_msg_error_str = 'E'
+let g:ale_echo_msg_warning_str = 'W'
+let g:ale_echo_msg_format = '[%linter%] %s [%severity%]'
+"普通模式下，sp前往上一个错误或警告，sn前往下一个错误或警告
+nmap sp <Plug>(ale_previous_wrap)
+nmap sn <Plug>(ale_next_wrap)
+"打开文件和编辑文件时都不进行检查，只在保存时进行检查
+let g:ale_lint_on_text_changed = 'never'
+let g:ale_lint_on_enter = 0
+"关闭clang++对c++的语法检查
+let g:ale_linters = {
+\   'c++': ['clang++'],
+\}
+
+"ctrlp
+let g:ctrlp_map = '<Leader>p'
+let g:ctrlp_cmd = 'CtrlP'
+nmap <Leader>f :CtrlPMRUFiles<CR>
+nmap <Leader>b :CtrlPBuffer<CR>
+let g:ctrlp_custom_ignore = {
+    \ 'dir':  '\v[\/]\.(git|hg|svn|rvm)$',
+    \ 'file': '\v\.(exe|so|dll|zip|tar|tar.gz|pyc)$',
+    \ }
+let g:ctrlp_working_path_mode = 0
+let g:ctrlp_match_window_bottom = 1
+let g:ctrlp_max_height = 15
+let g:ctrlp_match_window_reversed = 0
+let g:ctrlp_mruf_max = 500
+let g:ctrlp_follow_symlinks = 1
+"使用ag作为CtrlP的搜索引擎，同时不使用缓存
+if executable('ag')
+  set grepprg=ag\ --nogroup\ --nocolor
+  let g:ctrlp_user_command = 'ag %s -l --nocolor -g ""'
+  let g:ctrlp_use_caching = 0
+endif
+
+"ack
+map <Leader>c :Ack!<Space>-i  
+if executable('ag')
+  let g:ackprg = 'ag --vimgrep'
+endif
+"高亮搜索关键词
+let g:ackhighlight = 1
+"在QuickFix窗口使用快捷键以后，自动关闭QuickFix窗口
+let g:ack_autoclose = 1
+"部分功能受限，但对于大项目搜索速度较慢时可以尝试开启
+"let g:ack_use_dispatch = 1
+
+"YouCompleteMe
+"配置默认文件路径
+let g:ycm_global_ycm_extra_conf = '~/.ycm_extra_conf.py'
+"打开vim时不再询问是否加载ycm_extra_conf.py配置
+let g:ycm_confirm_extra_conf=0
+set completeopt=longest,menu
+"自动开启语义补全
+let g:ycm_seed_identifiers_with_syntax=1
+"在注释中也开启补全
+let g:ycm_complete_in_comments=1
+let g:ycm_collect_identifiers_from_comments_and_strings = 0
+"字符串中也开启补全
+let g:ycm_complete_in_strings = 1
+let g:ycm_collect_identifiers_from_tags_files = 1
+"开启基于tag的补全，可以在这之后添加需要的标签路径  
+let g:ycm_collect_identifiers_from_tags_files = 1
+"开始补全的字符数
+let g:ycm_min_num_of_chars_for_completion=2
+"补全后自动关闭预览窗口
+let g:ycm_autoclose_preview_window_after_completion=1
+"禁止缓存匹配项,每次都重新生成匹配项
+let g:ycm_cache_omnifunc=0
+"离开插入模式后自动关闭预览窗口
+autocmd InsertLeave * if pumvisible() == 0|pclose|endif
+"语法关键字补全
+let g:ycm_seed_identifiers_with_syntax=1	
+"提示UltiSnips
+let g:ycm_use_ultisnips_completer = 1 
+"跳转到定义处, 分屏打开
+let g:ycm_goto_buffer_command = 'horizontal-split'
+"nnoremap <Leader>jd :YcmCompleter GoToDefinition<CR>
+nnoremap <Leader>jd :YcmCompleter GoToDefinitionElseDeclaration<CR>
+nnoremap <Leader>gd :YcmCompleter GoToDeclaration<CR>
+
+"UltiSnips
+"插入模式下直接通过<C-z>键来触发UltiSnips的代码块补全
+let g:UltiSnipsExpandTrigger="<C-z>"
+"弹出UltiSnips的可用列表,由于不常用, 所以这里设置成了特殊的<C-i>映射
+let g:UltiSnipsListSnippets="<C-i>"
+"<C-f>跳转的到下一个代码块可编辑区
+let g:UltiSnipsJumpForwardTrigger="<C-f>"
+"<C-b>跳转到上一个代码块可编辑区
+let g:UltiSnipsJumpBackwardTrigger="<C-b>"
+
+"python-mode
+"开启警告
+let g:pymode_warnings = 0
+"保存文件时自动删除无用空格
+let g:pymode_trim_whitespaces = 1
+"let g:pymode_options = 1
+"显示允许的最大长度的列
+let g:pymode_options_colorcolumn = 1
+"设置QuickFix窗口的最大，最小高度
+let g:pymode_quickfix_minheight = 3
+let g:pymode_quickfix_maxheight = 10
+"使用python3
+let g:pymode_python = 'python3'
+"使用PEP8风格的缩进
+let g:pymode_indent = 1
+"取消代码折叠
+let g:pymode_folding = 0
+"开启python-mode定义的移动方式
+let g:pymode_motion = 1
+"启用python-mode内置的python文档，使用K进行查找
+let g:pymode_doc = 1
+let g:pymode_doc_bind = 'K'
+"自动检测并启用virtualenv
+let g:pymode_virtualenv = 1
+"不使用python-mode运行python代码
+let g:pymode_run = 0
+"let g:pymode_run_bind = '<Leader>r'
+"不使用python-mode设置断点
+let g:pymode_breakpoint = 0
+"let g:pymode_breakpoint_bind = '<leader>b'
+"启用python语法检查
+let g:pymode_lint = 1
+"修改后保存时进行检查
+let g:pymode_lint_on_write = 0
+"编辑时进行检查
+let g:pymode_lint_on_fly = 0
+let g:pymode_lint_checkers = ['pyflakes', 'pep8']
+"发现错误时不自动打开QuickFix窗口
+let g:pymode_lint_cwindow = 0
+let g:pymode_lint_signs = 0
+"let g:pymode_lint_todo_symbol = 'WW'
+"let g:pymode_lint_comment_symbol = 'CC'
+"let g:pymode_lint_visual_symbol = 'RR'
+"let g:pymode_lint_error_symbol = 'EE'
+"let g:pymode_lint_info_symbol = 'II'
+"let g:pymode_lint_pyflakes_symbol = 'FF'
+"启用重构
+let g:pymode_rope = 1
+"不在父目录下查找.ropeproject，能提升响应速度
+let g:pymode_rope_lookup_project = 0
+"光标下单词查阅文档
+let g:pymode_rope_show_doc_bind = '<C-c>d'
+"项目修改后重新生成缓存
+let g:pymode_rope_regenerate_on_write = 1
+"开启补全，并设置<Ctrl+Space>为默认快捷键
+let g:pymode_rope_completion = 1
+let g:pymode_rope_complete_on_dot = 1
+let g:pymode_rope_completion_bind = '<C-Space>'
+"<C-c>g跳转到定义处，同时新建竖直窗口打开
+let g:pymode_rope_goto_definition_bind = '<C-c>g'
+let g:pymode_rope_goto_definition_cmd = 'vnew'
+"重命名光标下的函数，方法，变量及类名
+let g:pymode_rope_rename_bind = '<C-c>rr'
+"重命名光标下的模块或包
+let g:pymode_rope_rename_module_bind = '<C-c>r1r'
+"开启python所有的语法高亮
+let g:pymode_syntax = 1
+let g:pymode_syntax_all = 1
+"高亮缩进错误
+let g:pymode_syntax_indent_errors = g:pymode_syntax_all
+"高亮空格错误
+let g:pymode_syntax_space_errors = g:pymode_syntax_all
+
+"Vebugger
+let g:vebugger_leader=','
+
+
+
+
+"EasyMotion
+let g:EasyMotion_leader_key = 'c'
+let g:EasyMotion_smartcase = 1
+map <Leader><Leader>h <Plug>(easymotion-linebackward)
+map <Leader><Leader>j <Plug>(easymotion-j)
+map <Leader><Leader>k <Plug>(easymotion-k)
+map <Leader><Leader>l <Plug>(easymotion-lineforward)
+map <Leader><Leader>. <Plug>(easymotion-repeat)
+
+"syntastic
+"设置error和warning的标志
+let g:syntastic_enable_signs = 1
+let g:syntastic_error_symbol='✗'
+let g:syntastic_warning_symbol='►'
+"总是打开Location List（相当于QuickFix）窗口，如果你发现syntastic因为与其他插件冲突而经常崩溃，将下面选项置0
+let g:syntastic_always_populate_loc_list = 1
+"自动打开Locaton List，默认值为2，表示发现错误时不自动打开，当修正以后没有再发现错误时自动关闭，置1表示自动打开自动关闭，0表示关闭自动打开和自动关闭，3表示自动打开，但不自动关闭
+let g:syntastic_auto_loc_list = 1
+"修改Locaton List窗口高度
+let g:syntastic_loc_list_height = 5
+"打开文件时自动进行检查
+let g:syntastic_check_on_open = 1
+"自动跳转到发现的第一个错误或警告处
+let g:syntastic_auto_jump = 1
+"进行实时检查，如果觉得卡顿，将下面的选项置为1
+let g:syntastic_check_on_wq = 0
+"高亮错误
+let g:syntastic_enable_highlighting=1
+"让syntastic支持C++11
+let g:syntastic_cpp_compiler = 'clang++'
+let g:syntastic_cpp_compiler_options = ' -std=c++11 -stdlib=libc++'
+"let g:syntastic_cpp_checkers = ['gcc']
+"let g:syntastic_cpp_compiler = 'gcc'
+"let g:syntastic_cpp_compiler_options = '-std=c++11'
+"对C和C++开启最严格的检查
+"let g:syntastic_c_compiler_options = '-W -Wall -Wextra -fsized-deallocation -pedantic -ansi -std=c99 -Wstrict-prototypes -Wmissing-prototypes -Wmissing-declarations -Wnested-externs -Wzero-as-null-pointer-constant -Wformat=2 -Wformat-security -Wformat-signedness -Wformat-y2k -Wnull-dereference  -Wconversion'
+"let g:syntastic_cpp_compiler_options = '-W -Wall -Wextra -fsized-deallocation -pedantic -ansi -std=c99 -std=gnu++98 -std=gnu++11 -std=gnu++14 -stdlib=libc++ -Wstrict-prototypes -Wmissing-prototypes -Wmissing-declarations -Wnested-externs -Wzero-as-null-pointer-constant -Wformat=2 -Wformat-security -Wformat-signedness -Wformat-y2k -Wnull-dereference  -Wconversion' 
+"设置pyflakes为默认的python语法检查工具
+let g:syntastic_python_checkers = ['pyflakes']
+"修复syntastic使用:lnext和:lprev出现的跳转问题，同时修改键盘映射使用sn和sp进行跳转
+function! <SID>LocationPrevious()                       
+  try                                                   
+    lprev                                               
+  catch /^Vim\%((\a\+)\)\=:E553/                        
+    llast                                               
+  endtry                                                
+endfunction                                             
+function! <SID>LocationNext()                           
+  try                                                   
+    lnext                                               
+  catch /^Vim\%((\a\+)\)\=:E553/                        
+    lfirst                                              
+  endtry                                                
+endfunction                                             
+nnoremap <silent> <Plug>LocationPrevious    :<C-u>exe 'call <SID>LocationPrevious()'<CR>                                        
+nnoremap <silent> <Plug>LocationNext        :<C-u>exe 'call <SID>LocationNext()'<CR>
+nmap <silent> sp    <Plug>LocationPrevious              
+nmap <silent> sn    <Plug>LocationNext
+"关闭syntastic语法检查, 鼠标复制代码时用到, 防止把错误标志给复制了
+nnoremap <silent> <Leader>ec :SyntasticToggleMode<CR>
+function! ToggleErrors()
+    let old_last_winnr = winnr('$')
+    lclose
+    if old_last_winnr == winnr('$')
+        " Nothing was closed, open syntastic error location panel
+        Errors
+    endif
+endfunction
+
+"YankRing
+let g:yankring_history_dir = $HOME.'/.vim/'
+let g:yankring_history_file = '.yankring_history'
+let g:yankring_replace_n_pkey = '<Leader>m'
+let g:yankring_replace_n_nkey = '<Leader>n'
+nmap <Leader>y :YRShow<CR>
+
+"gundo
+nnoremap <Leader>h :GundoToggle<CR>
+"nnoremap <F6> :GundoToggle<CR>
+let g:gundo_width = 30
+
+"vim-tmux-navigator
+let g:tmux_navigator_save_on_switch = 2
+
+"quickrun
+let g:quickrun_config = {
+\   "_" : {
+\       "outputter" : "message",
+\   },
+\}
+let g:quickrun_no_default_key_mappings = 1
+nmap <Leader>r <Plug>(quickrun)
+map <F11> :QuickRun<CR>
+
+"easy-align（vipga，gaip进行操作）
+xmap ga <Plug>(EasyAlign)
+nmap ga <Plug>(EasyAlign)
+
+"vim-dict
+let g:dict_hosts = [
+  \["dict.org", ["wn","all"]]
+\]
+let g:dict_leave_pw = 0
+let g:dict_curl_options = "--connect-timeout 30"
+set dictionary+=/usr/share/dict/words
+au FileType text,markdown setlocal complete+=k
+
+"online-thesaurus
+let g:online_thesaurus_map_keys = 0
+nnoremap <C-e> :OnlineThesaurusCurrentWord<CR>
+
+"supertab
+"let g:SuperTabContextDefaultCompletionType = "context"
+
+"关闭QuickFix窗口
+nnoremap <Leader>c :cclose<bar>lclose<CR>
+"空格键打开折叠代码
+set foldmethod=indent
+set foldlevel=99
+nnoremap <space> za
+"设置Ctrl+U补全关键字和函数名
+"imap <C-u> <C-x><C-o>
+"设置快捷键将选中文本块复制至系统剪贴板
+"vnoremap <Leader>w "+y
+"设置快捷键将系统剪贴板内容粘贴至vim
+"nnoremap <Leader>y "+gP
+"按下Q不进入Ex模式，而是保存并退出
+"nmap Q :x<CR>
+"F2可打印字符显示开关
+nnoremap F2 :set list! list?<CR>
+"F4行号显示开关
+nmap <F4> :set number! number?<CR>
+"F12放大字体，Shift+F12缩小字体
+if has("unix")
+    function! FontSizePlus ()
+      let l:gf_size_whole = matchstr(&guifont, '\( \)\@<=\d\+$')
+      let l:gf_size_whole = l:gf_size_whole + 1
+      let l:new_font_size = ' '.l:gf_size_whole
+      let &guifont = substitute(&guifont, ' \d\+$', l:new_font_size, '')
+    endfunction
+
+    function! FontSizeMinus ()
+      let l:gf_size_whole = matchstr(&guifont, '\( \)\@<=\d\+$')
+      let l:gf_size_whole = l:gf_size_whole - 1
+      let l:new_font_size = ' '.l:gf_size_whole
+      let &guifont = substitute(&guifont, ' \d\+$', l:new_font_size, '')
+    endfunction
+else
+    function! FontSizePlus ()
+      let l:gf_size_whole = matchstr(&guifont, '\(:h\)\@<=\d\+$')
+      let l:gf_size_whole = l:gf_size_whole + 1
+      let l:new_font_size = ':h'.l:gf_size_whole
+      let &guifont = substitute(&guifont, ':h\d\+$', l:new_font_size, '')
+    endfunction
+
+    function! FontSizeMinus ()
+      let l:gf_size_whole = matchstr(&guifont, '\(:h\)\@<=\d\+$')
+      let l:gf_size_whole = l:gf_size_whole - 1
+      let l:new_font_size = ':h'.l:gf_size_whole
+      let &guifont = substitute(&guifont, ':h\d\+$', l:new_font_size, '')
+    endfunction
+endif
+if has("gui_running")
+    nmap <S-F12> :call FontSizeMinus()<CR>
+    nmap <F12> :call FontSizePlus()<CR>
+endif
